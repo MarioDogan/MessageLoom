@@ -1,0 +1,10 @@
+load("@rules_cc//cc:cc_binary.bzl", "cc_binary")
+load("//bazel:copts.bzl", "MLOOM_COPTS")
+
+# bazel run //examples:pipeline
+cc_binary(
+    name = "pipeline",
+    srcs = ["pipeline.cpp"],
+    copts = MLOOM_COPTS,
+    deps = ["//mloom"],
+)

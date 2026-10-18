@@ -1,0 +1,127 @@
+load("@rules_cc//cc:cc_library.bzl", "cc_library")
+load("@rules_cc//cc:cc_test.bzl", "cc_test")
+load("//bazel:copts.bzl", "MLOOM_COPTS")
+
+package(default_visibility = ["//visibility:public"])
+
+# Tests of //mloom/node and the support code they share.
+
+# Runs one node on its own thread, wired to test-side sockets.
+cc_library(
+    name = "node_harness",
+    testonly = True,
+    srcs = ["node_harness.cpp"],
+    hdrs = ["node_harness.hpp"],
+    copts = MLOOM_COPTS,
+    deps = [
+        "//mloom/node",
+        "//mloom/transport/zmq",
+    ],
+)
+
+# Stand-ins for the NodeCore / NodeLoop pair, to test either side alone.
+cc_library(
+    name = "fakes",
+    testonly = True,
+    hdrs = [
+        "fake_loop_context.hpp",
+        "scripted_loop.hpp",
+    ],
+    copts = MLOOM_COPTS,
+    deps = ["//mloom/node"],
+)
+
+# Stand-in for a third-party library whose code gets integrated into logic handlers. It must not
+# depend on MessageLoom.
+cc_library(
+    name = "acme_sensors",
+    testonly = True,
+    srcs = ["third_party/acme_sensors.cpp"],
+    hdrs = ["third_party/acme_sensors.hpp"],
+    copts = MLOOM_COPTS,
+)
+
+# Lambdas integrating the stateless acme functions, shared by the third-party tests.
+cc_library(
+    name = "acme_integration",
+    testonly = True,
+    hdrs = ["acme_integration.hpp"],
+    copts = MLOOM_COPTS,
+    deps = [
+        ":acme_sensors",
+        "//mloom/node",
+    ],
+)
+
+cc_test(
+    name = "logic_handler_third_party_test",
+    size = "small",
+    srcs = ["logic_handler_third_party_test.cpp"],
+    copts = MLOOM_COPTS,
+    deps = [
+        ":acme_integration",
+        ":acme_sensors",
+        "//mloom/node",
+        "@googletest//:gtest_main",
+    ],
+)
+
+cc_test(
+    name = "node_third_party_test",
+    size = "small",
+    srcs = [
+        "node_third_party_test.cpp",
+        "//mloom/transport/zmq:tsan_suppressions.cpp",
+    ],
+    copts = MLOOM_COPTS,
+    deps = [
+        ":acme_integration",
+        ":acme_sensors",
+        ":node_harness",
+        "//mloom/node",
+        "//mloom/transport/zmq",
+        "@googletest//:gtest_main",
+    ],
+)
+
+[
+    cc_test(
+        name = test,
+        size = "small",
+        srcs = [test + ".cpp"],
+        copts = MLOOM_COPTS,
+        deps = [
+            "//mloom/node",
+            "@googletest//:gtest_main",
+        ],
+    )
+    for test in [
+        "control_test",
+        "logic_handler_test",
+    ]
+]
+
+[
+    cc_test(
+        name = test,
+        size = "small",
+        srcs = [
+            test + ".cpp",
+            "//mloom/transport/zmq:tsan_suppressions.cpp",
+        ],
+        copts = MLOOM_COPTS,
+        deps = [
+            ":fakes",
+            ":node_harness",
+            "//mloom/node",
+            "//mloom/transport/zmq",
+            "@googletest//:gtest_main",
+        ],
+    )
+    for test in [
+        "node_core_test",
+        "node_loop_test",
+        "node_test",
+        "socket_manager_test",
+    ]
+]

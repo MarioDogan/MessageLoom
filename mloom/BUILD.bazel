@@ -1,0 +1,16 @@
+load("@rules_cc//cc:cc_library.bzl", "cc_library")
+
+package(default_visibility = ["//visibility:public"])
+
+# Everything: #include "mloom/mloom.hpp" and depend on //mloom.
+cc_library(
+    name = "mloom",
+    hdrs = ["mloom.hpp"],
+    deps = [
+        "//mloom/core",
+        "//mloom/node",
+        "//mloom/orchestration",
+        "//mloom/transport",
+        "//mloom/transport/zmq",
+    ],
+)

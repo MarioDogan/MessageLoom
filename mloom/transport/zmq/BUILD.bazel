@@ -1,0 +1,42 @@
+load("@rules_cc//cc:cc_library.bzl", "cc_library")
+load("@rules_cc//cc:cc_test.bzl", "cc_test")
+load("//bazel:copts.bzl", "MLOOM_COPTS")
+
+package(default_visibility = ["//visibility:public"])
+
+# ZeroMQ implementation of the MessageQueue. zmq_sockets.hpp is private to this package.
+cc_library(
+    name = "zmq",
+    srcs = [
+        "zmq_message_queue.cpp",
+        "zmq_sockets.cpp",
+        "zmq_sockets.hpp",
+    ],
+    hdrs = ["zmq_message_queue.hpp"],
+    copts = MLOOM_COPTS,
+    deps = [
+        "//mloom/core",
+        "//mloom/transport",
+        "@cppzmq",
+        "@libzmq",
+    ],
+)
+
+# Compile into the srcs of tests that use ZeroMQ, so --config=tsan reports only our own races.
+# It must be part of the test executable: a definition in a shared library loses against the
+# TSan runtime's own weak default.
+exports_files(["tsan_suppressions.cpp"])
+
+cc_test(
+    name = "zmq_message_queue_test",
+    size = "small",
+    srcs = [
+        "tsan_suppressions.cpp",
+        "zmq_message_queue_test.cpp",
+    ],
+    copts = MLOOM_COPTS,
+    deps = [
+        ":zmq",
+        "@googletest//:gtest_main",
+    ],
+)

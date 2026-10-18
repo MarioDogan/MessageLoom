@@ -1,0 +1,39 @@
+load("@rules_cc//cc:cc_library.bzl", "cc_library")
+load("//bazel:copts.bzl", "MLOOM_COPTS")
+
+package(default_visibility = ["//visibility:public"])
+
+# Nodes: logic handlers, socket manager, node loops, node core and the node itself.
+# Tests and test support live in //mloom/node/testing.
+cc_library(
+    name = "node",
+    srcs = [
+        "control.cpp",
+        "free_running_loop.cpp",
+        "free_running_source_loop.cpp",
+        "node.cpp",
+        "node_core.cpp",
+        "node_loop.cpp",
+        "socket_manager.cpp",
+        "triggered_loop.cpp",
+        "triggered_source_loop.cpp",
+    ],
+    hdrs = [
+        "backpressure.hpp",
+        "control.hpp",
+        "free_running_loop.hpp",
+        "free_running_source_loop.hpp",
+        "logic_handler.hpp",
+        "node.hpp",
+        "node_core.hpp",
+        "node_loop.hpp",
+        "socket_manager.hpp",
+        "triggered_loop.hpp",
+        "triggered_source_loop.hpp",
+    ],
+    copts = MLOOM_COPTS,
+    deps = [
+        "//mloom/core",
+        "//mloom/transport",
+    ],
+)

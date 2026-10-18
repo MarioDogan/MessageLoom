@@ -1,0 +1,16 @@
+# C++20 everywhere, including tools built for the host.
+common --cxxopt=-std=c++20 --host_cxxopt=-std=c++20
+
+test --test_output=errors
+
+# bazel test --config=clang //...
+build:clang --repo_env=CC=clang --repo_env=CXX=clang++
+
+# Treat warnings in MessageLoom's own sources as errors.
+build:strict --per_file_copt=^mloom/.*,^examples/.*@-Werror
+
+# Sanitizers: bazel test --config=asan //...  (or tsan)
+build:asan --copt=-fsanitize=address --copt=-fno-omit-frame-pointer --linkopt=-fsanitize=address --strip=never
+build:tsan --copt=-fsanitize=thread --linkopt=-fsanitize=thread --strip=never
+# The TSan runtime cannot handle the high-entropy ASLR of newer kernels (vm.mmap_rnd_bits=32).
+test:tsan --run_under="setarch -R"

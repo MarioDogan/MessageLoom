@@ -1,0 +1,70 @@
+load("@rules_cc//cc:cc_library.bzl", "cc_library")
+load("@rules_cc//cc:cc_test.bzl", "cc_test")
+load("//bazel:copts.bzl", "MLOOM_COPTS")
+
+package(default_visibility = ["//visibility:public"])
+
+# Staging (how nodes connect), node runners and the orchestrator.
+cc_library(
+    name = "orchestration",
+    srcs = [
+        "orchestrator.cpp",
+        "stage.cpp",
+        "thread_runner.cpp",
+    ],
+    hdrs = [
+        "node_runner.hpp",
+        "orchestrator.hpp",
+        "stage.hpp",
+        "thread_runner.hpp",
+    ],
+    copts = MLOOM_COPTS,
+    deps = [
+        "//mloom/core",
+        "//mloom/node",
+        "//mloom/transport",
+    ],
+)
+
+cc_test(
+    name = "stage_test",
+    size = "small",
+    srcs = ["stage_test.cpp"],
+    copts = MLOOM_COPTS,
+    deps = [
+        ":orchestration",
+        "//mloom/transport/zmq",
+        "@googletest//:gtest_main",
+    ],
+)
+
+cc_test(
+    name = "orchestration_test",
+    size = "small",
+    srcs = [
+        "orchestration_test.cpp",
+        "//mloom/transport/zmq:tsan_suppressions.cpp",
+    ],
+    copts = MLOOM_COPTS,
+    deps = [
+        ":orchestration",
+        "//mloom/transport/zmq",
+        "@googletest//:gtest_main",
+    ],
+)
+
+# Teardown across node threads, the orchestrator and ZeroMQ; run it with --config=tsan and asan.
+cc_test(
+    name = "shutdown_test",
+    size = "small",
+    srcs = [
+        "shutdown_test.cpp",
+        "//mloom/transport/zmq:tsan_suppressions.cpp",
+    ],
+    copts = MLOOM_COPTS,
+    deps = [
+        ":orchestration",
+        "//mloom/transport/zmq",
+        "@googletest//:gtest_main",
+    ],
+)

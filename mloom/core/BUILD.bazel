@@ -1,0 +1,40 @@
+load("@rules_cc//cc:cc_library.bzl", "cc_library")
+load("@rules_cc//cc:cc_test.bzl", "cc_test")
+load("//bazel:copts.bzl", "MLOOM_COPTS")
+
+package(default_visibility = ["//visibility:public"])
+
+# Status, type identity, type-erased messages and serialization codecs.
+cc_library(
+    name = "core",
+    srcs = [
+        "codec.cpp",
+        "status.cpp",
+    ],
+    hdrs = [
+        "byte_io.hpp",
+        "codec.hpp",
+        "message.hpp",
+        "status.hpp",
+        "timeout.hpp",
+        "type_id.hpp",
+    ],
+    copts = MLOOM_COPTS,
+)
+
+[
+    cc_test(
+        name = test,
+        size = "small",
+        srcs = [test + ".cpp"],
+        copts = MLOOM_COPTS,
+        deps = [
+            ":core",
+            "@googletest//:gtest_main",
+        ],
+    )
+    for test in [
+        "codec_test",
+        "message_test",
+    ]
+]

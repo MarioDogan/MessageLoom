@@ -1,0 +1,28 @@
+#pragma once
+
+// Umbrella header: the complete MessageLoom API with the ZeroMQ transport.
+
+#include "mloom/core/byte_io.hpp"
+#include "mloom/core/codec.hpp"
+#include "mloom/core/message.hpp"
+#include "mloom/core/status.hpp"
+#include "mloom/core/timeout.hpp"
+#include "mloom/core/type_id.hpp"
+#include "mloom/node/control.hpp"
+#include "mloom/node/free_running_loop.hpp"
+#include "mloom/node/free_running_source_loop.hpp"
+#include "mloom/node/logic_handler.hpp"
+#include "mloom/node/node.hpp"
+#include "mloom/node/node_core.hpp"
+#include "mloom/node/node_loop.hpp"
+#include "mloom/node/socket_manager.hpp"
+#include "mloom/node/triggered_loop.hpp"
+#include "mloom/node/triggered_source_loop.hpp"
+#include "mloom/orchestration/node_runner.hpp"
+#include "mloom/orchestration/orchestrator.hpp"
+#include "mloom/orchestration/stage.hpp"
+#include "mloom/orchestration/thread_runner.hpp"
+#include "mloom/transport/endpoint.hpp"
+#include "mloom/transport/message_queue.hpp"
+#include "mloom/transport/socket.hpp"
+#include "mloom/transport/zmq/zmq_message_queue.hpp"

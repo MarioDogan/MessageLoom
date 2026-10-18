@@ -1,0 +1,12 @@
+"""MessageLoom: a message passing, event based C++20 framework."""
+
+module(
+    name = "messageloom",
+    version = "0.1.0",
+)
+
+bazel_dep(name = "rules_cc", version = "0.2.26")
+bazel_dep(name = "libzmq", version = "4.3.5.bcr.7")
+bazel_dep(name = "cppzmq", version = "4.10.0.bcr.3")
+
+bazel_dep(name = "googletest", version = "1.17.0.bcr.2", dev_dependency = True)
